@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Math AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top, #3a321d 0%, #111 45%, #050505 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid #b99745;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow:
+                0 0 30px rgba(212, 175, 55, 0.25),
+                inset 0 0 30px rgba(255, 255, 255, 0.02);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 38px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .decor {
+            text-align: center;
+            color: #d4af37;
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            resize: vertical;
+            background: #0b0b0b;
+            color: white;
+            border: 1px solid #777;
+            border-radius: 12px;
+            padding: 18px;
+            font-size: 18px;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #d4af37, #8f7220);
+            color: #080808;
+            font-size: 19px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            filter: brightness(1.15);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .result {
+            margin-top: 25px;
+            background: #111;
+            border: 1px solid #555;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 80px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #eee;
+        }
+
+        .result-title {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            color: #bbb;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="logo">MATH AI</div>
+
+    <div class="subtitle">
+        Sun’iy intellekt yordamida matematika masalalarini yeching
+    </div>
+
+    <div class="decor">✦ ───────── ✦</div>
+
+    <textarea
+        id="question"
+        placeholder="Masalani shu yerga yozing...&#10;&#10;Masalan: 2x + 12 = 26"
+    ></textarea>
+
+    <button id="solveBtn" onclick="solveProblem()">
+        ✦ MASALANI YECHISH ✦
+    </button>
+
+    <div class="result">
+        <div class="result-title">Javob:</div>
+        <div id="answer">Masalani kiriting va “Masalani yechish” tugmasini bosing.</div>
+    </div>
+
+</div>
+
+<script>
+async function solveProblem() {
+
+    const question = document.getElementById("question").value.trim();
+    const answer = document.getElementById("answer");
+    const button = document.getElementById("solveBtn");
+
+    if (!question) {
+        answer.textContent = "Iltimos, masalani kiriting.";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "⏳ YECHILMOQDA...";
+    answer.textContent = "AI masalani yechmoqda...";
+
+    try {
+
+        const response = await fetch("/solve", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                question: question
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.answer) {
+            answer.textContent = data.answer;
+        } else {
+            answer.textContent = data.error || "Xatolik yuz berdi.";
+        }
+
+    } catch (error) {
+
+        answer.textContent =
+            "Backend bilan bog‘lanib bo‘lmadi. server.js ishlayotganini tekshiring.";
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "✦ MASALANI YECHISH ✦";
+
+    }
+}
+</script>
+
+</body>
+</html>
